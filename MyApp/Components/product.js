@@ -35,6 +35,7 @@ export default class Product extends React.Component{
                     
                     <Image
                         source={this.props.Image}
+                        onPress={this.props.navigation.navigative('Detail')}
                         style={{
                             height:180,
                             alignSelf:"center",

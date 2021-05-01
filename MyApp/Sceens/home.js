@@ -1,13 +1,44 @@
-import React from 'react'
-import {Text,Image,Picker,View} from 'react-native'
-import {ScrollView} from 'react-native-gesture-handler'
-import Product from "../Components/product"
-import detail from "../Sceens/detail"
+import React from 'react';
+import {Text,Image,Picker,View,TouchableOpacity} from 'react-native';
+import { useNavigation} from '@react-navigation/native';
+import {ScrollView} from 'react-native-gesture-handler';
+import Product from "../Components/product";
+import detail from "../Sceens/detail";
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import firestore from '@react-native-firebase/firestore';
+import { useState } from 'react';
+
+// export default function func(props) {
+//     const navigation = useNavigation();
+  
+//     return <Home navigation={navigation} />;
+//   }
+
 export default class Home extends React.Component{
     state={
-        category:"Historical"
+        category:"Historical",
+        Books:[],
     }
+    constructor(props)
+    {
+
+        super(props);
+        this.subscriber=firestore()
+        .collection('appBook')
+        .onSnapshot(docs=>{
+            let Books=[]
+            docs.forEach(doc=>{
+                Books.push(doc.data())
+            })
+            this.setState({Books})
+        })
+    }
+   getBook=async()=>{
+    const Books= await firestore().collection('appBook').doc('Books').get();
+    console.log(Books)
+   }
     render(){
+        // const { navigation } = this.props;
         return(
             <ScrollView style={{backgroundColor:"#fff"}}>
                 <View style={{
@@ -17,14 +48,18 @@ export default class Home extends React.Component{
                     marginHorizontal:20
                     
                 }}>
-                    <View style={{ width:"10%" }}>
+                    <TouchableOpacity
+                    onPress={this.props.navigation.openDrawer()}>
+                        <View style={{ width:"10%" }}>
                         <Image source={require('../Images/menu.png')} style={{
                             flex:1,
-                            width:null,
-                            height:null,
+                            width:20,
+                            height:20,
                             resizeMode:'contain'
                         }}></Image>
                       </View>  
+                    </TouchableOpacity>
+                    
                     <View style={{
                           width:"80%",
                           alignItems:"center",
@@ -59,12 +94,12 @@ export default class Home extends React.Component{
                       }}></Image></View>
                 </View>
               <View style={{
-                  marginTop:40,
+                  marginTop:30,
                   marginHorizontal:20,
                 
               }}>
                   <Text style={{
-                      fontSize:30,
+                      fontSize:25,
                       fontWeight:"bold"
                   }}>
                       Book that meets your needs
@@ -172,37 +207,72 @@ export default class Home extends React.Component{
                 </View>
 
                 </View> 
-              <View style={{
-                  flexDirection:"row",
-                  marginHorizontal:15,
-                   marginTop:30
-              }}>
-                <Product Image={require("../Images/code.jpg")}
-                    tittle="Ki su code dao"
-                    price="12.99"
-                    onPress={()=>this.props.navigation.navigate('Detail')}
-                ></Product>
-                <Product 
-                    Image={require("../Images/node.jpg")}
-                    tittle="The life in Mozart "
-                    price="10"
-                    marginTop={25}></Product>
-              </View>
-              <View style={{
-                  flexDirection:"row",
-                  marginHorizontal:15,
-                   marginTop:30
-              }}>
-                <Product Image={require("../Images/cooking.jpg")}
-                    tittle="Master Chef"
-                    price="12.99"
-                ></Product>
-                <Product 
-                    Image={require("../Images/english.jpg")}
-                    tittle="Learn English "
-                    price="10"
-                    marginTop={25}></Product>
-              </View>
+
+                <View style={{
+                    flexDirection:"column"
+                }}>
+                    <View>
+                            {this.state.Books.map((book,id)=><View key={id}>
+                                {console.log(book.id)}
+                <TouchableOpacity
+                onPress={()=>{this.props.navigation.navigate('Detail',{id:book.id})}}
+                style={{
+                    backgroundColor:"#EEEEEE",
+                    height:280,
+                    width:160,
+                    borderRadius:20,
+                    marginRight:20,
+                    marginVertical:10,
+                    marginTop:30,
+                    marginRight:10,
+                    flexDirection:"row",
+                    marginHorizontal:10
+                }}>
+                    <Image
+                    style={{
+                        height:180,
+                        width:140,
+                        alignSelf:"center",
+                        marginTop:15,
+                        marginBottom:15,
+                        marginHorizontal:10
+                    }}
+                    source={{uri:book.Image}}>
+                        
+                    </Image>
+                    <View style={{
+                    flexDirection:"column",
+                    marginTop:20
+                }}>
+                        <Text style={{
+                        fontWeight:"bold",
+                        fontSize:22
+                    }}>
+                        Name:{book.Name}
+                    </Text>
+                    <Text style={{
+                        color:"#848385",
+                        fontSize:20
+                    }}>Author:{book.Author}</Text>
+                     <Text style={{
+                        color:"#848385",
+                        fontSize:16
+                    }}>Caterogy:{book.Caterogy}</Text>
+                    <Text style={{
+                        color:"#000",
+                        fontSize:16
+                    }}>Price:{book.Price}$</Text>
+                    </View>  
+                </TouchableOpacity>
+                            </View>)}
+                    
+                    </View>
+               
+                
+                </View>
+                
+
+              
             </ScrollView>
         )
     }

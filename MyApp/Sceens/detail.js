@@ -1,10 +1,13 @@
 import React from 'react'
 import {Text,TouchableOpacity,View,Image} from 'react-native'
 import {ScrollView} from 'react-native-gesture-handler'
+import firestore from '@react-native-firebase/firestore';
 
 export default class detail extends React.Component{
+
     state={
-        quanlity:1
+        quanlity:1,
+        Books:[]
     }
     addQuantity=(quanlity)=>{
         this.setState({quanlity: this.state.quanlity+1});
@@ -13,6 +16,24 @@ export default class detail extends React.Component{
         if(this.state.quanlity>0)
         this.setState({quanlity: this.state.quanlity-1});
     }
+    constructor(props)
+    {
+        const id=props.route.params.id
+        console.log(id)
+        super(props);
+        this.subscriber=firestore()
+        .collection('appBook')
+        .where('id' , '==' , id)
+        .onSnapshot(docs=>{
+            let Books=[]
+            docs.forEach(doc=>{
+                Books.push(doc.data())
+            })
+            this.setState({Books})
+            console.log(Books)
+        })
+    }
+
     render(){
         return(
             <View style={{backgroundColor:"#fff"}}>
@@ -30,7 +51,7 @@ export default class detail extends React.Component{
                     onPress={()=>this.props.navigation.goBack()}
                     >
                         <Image 
-                            source={require('../Images/back.png')}>
+                            source={require('../Images/back12.png')}>
                             </Image>
                     </TouchableOpacity>
                 </View>
@@ -40,24 +61,54 @@ export default class detail extends React.Component{
                         alignItems:"center",
                         alignSelf:"center"
                     }}>
-                        <Text style={{
+                        
+                        <View style={{
+                            flexDirection:"column",
+                            alignItems:"center"
+                        }}>
+                            <Image source={require('../Images/bookicon1.png')} style={{
+                            width:40,
+                            height:40,
+                            resizeMode:"stretch"
+                        }}>
+                            
+                        </Image>
+                        {this.state.Books.map((book,id)=><View key={id}>
+                            <Text style={{
                             paddingHorizontal:10,
                             fontWeight:"bold",
                             fontSize:16
-                        }}>IT</Text>
+                        }}>{book.Caterogy}</Text>
+                        </View>)}
+                        </View>
+                        <View style={{
+                            width:"10%" }}>
+                            <Image source={require('../Images/heart.png')} style={{
+                                width:40,
+                                height:40,
+                                marginHorizontal:30,
+                                resizeMode:"stretch"
+                            }}>
+
+                            </Image>
+                        </View>
                     </View>
                     
                 </View>
             </View>
-            <Image source={require('../Images/code.jpg')}
-            
+            {this.state.Books.map((book,id)=><View key={id}
+                >
+            <Image source={{uri: book.Image}} 
             style={{
-                height:300,
-                width:300,
-                alignSelf:"center"
+                height:340,
+                width:200,
+                resizeMode:"stretch",
+                alignSelf:"center",
+                alignItems:"center"
             }}>
-
             </Image>
+            </View>)}
+               
             <View style={{
                 flexDirection:"row",
                 alignSelf:"center",
@@ -91,7 +142,8 @@ export default class detail extends React.Component{
                     </TouchableOpacity>
                  
             </View>
-            <View style={{
+            {this.state.Books.map((book,id)=><View key={id}>
+                            <View style={{
                         flexDirection:"row",
                         alignItems:"center",
                         marginHorizontal:20,
@@ -102,24 +154,26 @@ export default class detail extends React.Component{
                                 fontWeight:"bold",
                                 fontSize:25
                             }}>
-                                Ki su code dao
+                                {book.Name}
                             </Text>
                             <Text style={{
                                 fontWeight:"bold",
                                 fontSize:15,
                                 color:"#a4a4a9"
                             }}>
-                                Author:Pham Huy Hoang
+                                Author:{book.Author}
                             </Text>
                         </View>
                         <Text style={{
                             fontWeight:"bold",
                             fontSize:28,
-                            marginLeft:80
-                        }}>$12.99</Text>
+                            marginLeft:50
+                        }}>${book.Price}</Text>
 
                     </View>
-                         <Text style={{
+            </View>)}
+
+                    <Text style={{
                              marginTop:20,
                              fontWeight:"bold",
                              marginLeft:20,
@@ -187,9 +241,10 @@ export default class detail extends React.Component{
                         marginTop:30,
                         marginHorizontal:20
                     }}>
-                        Description
+                        Description:
                     </Text>
-                    <Text style={{
+                    {this.state.Books.map((book,id)=><View key={id}>
+                        <Text style={{
                         color:"#a4a4a9",
                         fontWeight:"bold",
                         fontSize:15,
@@ -197,16 +252,10 @@ export default class detail extends React.Component{
                         marginHorizontal:20,
                         textAlign:"justify"
                     }}>
-                        1 quyen sach rat hay ve cai gi do ne nsdssdasdasdasdas
-                        asdasdasd
-                        asdasdasdasdanasd
-                        1 quyen sach rat hay ve cai gi do ne nsdssdasdasdasdas
-                        asdasdasd
-                        asdasdasdasdanasd
-                        1 quyen sach rat hay ve cai gi do ne nsdssdasdasdasdas
-                        asdasdasd
-                        asdasdasdasdanasd
+                       {book.Description}
                     </Text>
+                    </View>)}
+                    
                 </ScrollView>
                     <View style={{
                         position:"absolute",
