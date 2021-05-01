@@ -7,6 +7,7 @@ import detail from "../Sceens/detail";
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import firestore from '@react-native-firebase/firestore';
 import { useState } from 'react';
+import auth from '@react-native-firebase/auth'
 
 // export default function func(props) {
 //     const navigation = useNavigation();
@@ -14,7 +15,7 @@ import { useState } from 'react';
 //     return <Home navigation={navigation} />;
 //   }
 
-export default class Home extends React.Component{
+ export default class Home extends React.Component{
     state={
         category:"Historical",
         Books:[],
@@ -49,7 +50,10 @@ export default class Home extends React.Component{
                     
                 }}>
                     <TouchableOpacity
-                    onPress={this.props.navigation.openDrawer()}>
+                   onPress={()=>{
+                    auth().signOut()
+                    .then(() => this.props.navigation.navigate('MainLogin'));
+                }}>
                         <View style={{ width:"10%" }}>
                         <Image source={require('../Images/menu.png')} style={{
                             flex:1,
